@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .logo {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            background: #2eaadc;
+            border-radius: 4px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+            font-size: 14px;
+        }
+
+        input,
+        textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #2eaadc;
+            box-shadow: 0 0 0 2px rgba(46, 170, 220, 0.2);
+        }
+
+        textarea {
+            height: 80px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background: #2eaadc;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2591c4;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 1px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success {
+            color: #28a745;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .config-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .config-toggle {
+            font-size: 12px;
+            color: #6c757d;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #6c757d;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo"></div>
+            <h1>Add to Notion</h1>
+        </div>
+        <div class="config-section" id="config-section">
+            <div class="config-toggle" id="config-toggle">⚙️ Configure Notion Settings</div>
+            <div id="config-form" class="hidden">
+                <div class="form-group">
+                    <label for="notion-token">Notion Integration Token:</label>
+                    <input type="password" id="notion-token" placeholder="secret_...">
+                    <div class="error" id="token-error"></div>
+                </div>
+                <div class="form-group">
+                    <label for="database-id">Database ID:</label>
+                    <input type="text" id="database-id" placeholder="Database ID from Notion URL">
+                    <div class="error" id="database-error"></div>
+                </div>
+                <button class="btn-secondary" id="save-config">Save Configuration</button>
+                <div class="success" id="config-success">Configuration saved!</div>
+            </div>
+        </div>
+        <form id="todo-form">
+            <div class="form-group">
+                <label for="name">Name *</label>
+                <input type="text" id="name" required>
+                <div class="error" id="name-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date">
+                <div class="error" id="date-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" placeholder="Enter description..."></textarea>
+                <div class="error" id="description-error"></div>
+            </div>
+            <div class="loading" id="loading">Adding to Notion...</div>
+            <div class="success" id="success">Successfully added to Notion! ✓</div>
+            <div class="error" id="form-error"></div>
+            <div class="button-group">
+                <button type="button" class="btn-secondary" id="clear-btn">Clear</button>
+                <button type="submit" class="btn-primary" id="submit-btn">Add to Notion</button>
+            </div>
+        </form>
+    </div>
+    <script src="popup.js"></script>
+</body>
+
+</html>
