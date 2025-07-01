@@ -23,6 +23,7 @@ interface NotionPageData {
     name: string;
     date?: string;
     description?: string;
+    content?: string;
 }
 
 interface NotionConfig {
@@ -131,6 +132,29 @@ async function handleAddToNotion(data: NotionPageData): Promise<any> {
         };
     }
 
+    // Add content as a block in the page body if provided
+    if (data.content) {
+        pageData.children = [
+            {
+                object: 'block',
+                type: 'paragraph',
+                paragraph: {
+                    rich_text: [
+                        {
+                            type: 'text',
+                            text: {
+                                content: data.content
+                            }
+                        }
+                    ]
+                }
+            }
+        ];
+    }
+
+    // Debug: log the payload
+    console.log('Sending to Notion:', JSON.stringify(pageData, null, 2));
+
     // Create the page in Notion
     const response = await fetch('https://api.notion.com/v1/pages', {
         method: 'POST',
@@ -142,10 +166,14 @@ async function handleAddToNotion(data: NotionPageData): Promise<any> {
         body: JSON.stringify(pageData)
     });
 
+    // Debug: log the response
+    const responseData = await response.clone().json().catch(() => null);
+    console.log('Notion API response:', response.status, response.statusText, responseData);
+
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(`Failed to create page: ${errorData.message || response.statusText}`);
+        const errorData = responseData;
+        throw new Error(`Failed to create page: ${errorData?.message || response.statusText}`);
     }
 
-    return await response.json();
+    return responseData;
 }

@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const todoForm = document.getElementById('todo-form') as HTMLFormElement;
     const nameInput = document.getElementById('name') as HTMLInputElement;
     const dateInput = document.getElementById('date') as HTMLInputElement;
+    const contentInput = document.getElementById('content') as HTMLTextAreaElement;
     const descriptionInput = document.getElementById('description') as HTMLTextAreaElement;
     const clearBtn = document.getElementById('clear-btn') as HTMLButtonElement;
     const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
@@ -28,6 +29,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     configToggle.addEventListener('click', () => {
         configForm.classList.toggle('hidden');
     });
+
+    // Autofill date with today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
 
     // Save configuration
     saveConfigBtn.addEventListener('click', async () => {
@@ -56,7 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Clear form
     clearBtn.addEventListener('click', () => {
         nameInput.value = '';
-        dateInput.value = '';
+        dateInput.value = today;
+        contentInput.value = '';
         descriptionInput.value = '';
         hideAllErrors();
         hideSuccess(success);
@@ -68,6 +74,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const name = nameInput.value.trim();
         const date = dateInput.value;
+        const content = contentInput.value.trim();
         const description = descriptionInput.value.trim();
 
         if (!name) {
@@ -86,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await new Promise<any>((resolve) => {
                 chrome.runtime.sendMessage({
                     type: 'ADD_TO_NOTION',
-                    data: { name, date, description }
+                    data: { name, date, content, description }
                 }, resolve);
             });
 
@@ -94,7 +101,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showSuccess(success, 'Successfully added to Notion! ✓');
                 // Clear form after successful submission
                 nameInput.value = '';
-                dateInput.value = '';
+                dateInput.value = today;
+                contentInput.value = '';
                 descriptionInput.value = '';
                 // Clear selected text from storage
                 chrome.storage.local.set({ selectedText: '' });
@@ -163,7 +171,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // First try to get from storage (set by content script)
             const result = await chrome.storage.local.get(['selectedText']);
             if (result.selectedText && result.selectedText.trim()) {
-                descriptionInput.value = result.selectedText.trim();
+                contentInput.value = result.selectedText.trim();
                 return;
             }
 
@@ -172,7 +180,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (tab.id) {
                 chrome.tabs.sendMessage(tab.id, { type: 'GET_SELECTED_TEXT' }, (response) => {
                     if (response && response.selectedText) {
-                        descriptionInput.value = response.selectedText;
+                        contentInput.value = response.selectedText;
                     }
                 });
             }
@@ -180,4 +188,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error('Failed to load selected text:', error);
         }
     }
+
+    // Hotkey: Ctrl+A to toggle popup (only works if popup is open)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key.toLowerCase() === 'a') {
+            e.preventDefault();
+            // Toggle config section as a proxy for toggling popup
+            configForm.classList.toggle('hidden');
+        }
+    });
 });
