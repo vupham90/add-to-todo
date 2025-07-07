@@ -87,7 +87,7 @@ async function validateDatabase(config: NotionConfig): Promise<void> {
     }
 }
 
-async function handleAddToNotion(data: NotionPageData): Promise<any> {
+async function handleAddToNotion(data: NotionPageData & { reference?: string }): Promise<any> {
     const config = await getNotionConfig();
     await validateDatabase(config);
 
@@ -119,16 +119,38 @@ async function handleAddToNotion(data: NotionPageData): Promise<any> {
         };
     }
 
-    // Add description if provided
-    if (data.description) {
-        pageData.properties.Description = {
-            rich_text: [
-                {
-                    text: {
-                        content: data.description
-                    }
+    // Add description if provided or reference exists
+    if (data.description || data.reference) {
+        let richTextArr = [];
+        if (data.reference) {
+            // Add the hyperlink as the first part
+            richTextArr.push({
+                type: 'text',
+                text: {
+                    content: 'ref',
+                    link: { url: data.reference }
+                },
+                annotations: { bold: true },
+            });
+            // Add a space after the link if description follows
+            if (data.description) {
+                richTextArr.push({
+                    type: 'text',
+                    text: { content: ' ' }
+                });
+            }
+        }
+        // Add the rest of the description if present
+        if (data.description) {
+            richTextArr.push({
+                type: 'text',
+                text: {
+                    content: data.description
                 }
-            ]
+            });
+        }
+        pageData.properties.Description = {
+            rich_text: richTextArr
         };
     }
 

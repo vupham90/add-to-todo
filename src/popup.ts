@@ -18,6 +18,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loading = document.getElementById('loading') as HTMLElement;
     const success = document.getElementById('success') as HTMLElement;
     const formError = document.getElementById('form-error') as HTMLElement;
+    const referenceLinkInput = document.getElementById('reference-link') as HTMLInputElement;
+
+    let referenceUrl = '';
 
     // Load saved configuration
     loadConfiguration();
@@ -64,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         dateInput.value = today;
         contentInput.value = '';
         descriptionInput.value = '';
+        if (referenceLinkInput) referenceLinkInput.value = '';
         hideAllErrors();
         hideSuccess(success);
     });
@@ -76,6 +80,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const date = dateInput.value;
         const content = contentInput.value.trim();
         const description = descriptionInput.value.trim();
+        const reference = referenceLinkInput ? referenceLinkInput.value.trim() : '';
 
         if (!name) {
             showError('name-error', 'Name is required');
@@ -93,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const response = await new Promise<any>((resolve) => {
                 chrome.runtime.sendMessage({
                     type: 'ADD_TO_NOTION',
-                    data: { name, date, content, description }
+                    data: { name, date, content, description, reference }
                 }, resolve);
             });
 
